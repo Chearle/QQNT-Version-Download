@@ -11,12 +11,12 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出仓库代码
+      - name: 检出代码
         uses: actions/checkout@v5
         with:
           persist-credentials: true
 
-      - name: 设置Python环境
+      - name: 设置Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -24,14 +24,20 @@ jobs:
       - name: 安装依赖
         run: pip install requests
 
-      - name: 运行监控脚本
+      - name: 运行脚本（强制写入版本）
         run: python main.py
 
-      # 关键修复：无文件修改时跳过提交，不报错
-      - name: 提交并推送更新
+      # 调试：查看文件是否被修改
+      - name: 查看文件状态
+        run: |
+          ls -lh
+          cat download_links.json
+
+      # 提交（无修改也不报错，有修改必提交）
+      - name: 提交更新
         run: |
           git config --global user.name "GitHub Actions"
-          git config --global user.email actions@github.com
+          git config --global user.email "actions@github.com"
           git add download_links.json
-          git commit -m "✅ 自动同步QQ最新版本下载地址" || true
+          git commit -m "✅ 强制初始化QQ版本下载地址" || true
           git push
