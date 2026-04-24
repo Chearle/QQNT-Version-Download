@@ -1,4 +1,4 @@
-# 🚀 QQ PC 客户端 自动版本监控
+# 🚀 NTQQ 自动版本监控
 > 7×24 小时全自动监控 | 官方最新下载地址实时同步 | 历史版本永久留存
 > 依托 GitHub Actions 免费运行，无需服务器、无需维护
 
@@ -14,18 +14,17 @@
 
 ## ✨ 核心特性
 - ✅ **全自动运行**：GitHub Actions 7×24 小时定时监控
-- ✅ **多平台适配**：同步 Windows 64位 / 32位 / Mac 官方下载地址
+- ✅ **多平台适配**：同步 Windows/Mac/Linux 官方下载地址
 - ✅ **增量更新**：仅新增新版本，不覆盖、不删除历史数据
 - ✅ **自动记录**：每条数据附带北京时间、版本号、下载链接
 - ✅ **零成本部署**：完全免费，无需服务器，开箱即用
 
 ## 📂 文件结构
 ├── main.py # 核心监控脚本
-
-├── download_links.json # 版本下载地址存储文件
-
 ├── .github/workflows/sync.yml # 定时任务配置
-
+├── .versions/linux.json #Linux 历史版本
+├── .versions/macos.json #mac 历史版本
+├── .versions/windows.json #win 历史版本
 └── README.md # 项目说明文档
 
 ## 🚀 部署教程
@@ -37,7 +36,7 @@
 
 ## 📊 数据查看
 所有版本下载地址统一存储在：
-👉 [download_links.json](download_links.json)
+👉 [versions](versions)
 
 ## 🔧 自定义配置
 ### 修改监控频率
@@ -52,6 +51,3 @@
 3. 如有侵权，请联系删除
 
 ---
-
-## 📝 更新日志
-- 2025-10-29：项目初始化，支持全平台自动监控与版本记录
