@@ -24,18 +24,14 @@ jobs:
       - name: 安装依赖
         run: pip install requests
 
-      - name: 运行监控脚本（获取版本+写入文件）
+      - name: 运行监控脚本
         run: python main.py
 
-      # 调试：查看文件是否被修改
-      - name: 查看文件内容
-        run: cat download_links.json
-
-      # 原生Git提交（100%稳定）
+      # 关键修复：无文件修改时跳过提交，不报错
       - name: 提交并推送更新
         run: |
           git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.email actions@github.com
           git add download_links.json
-          git commit -m "✅ 自动同步QQ最新版本下载地址"
+          git commit -m "✅ 自动同步QQ最新版本下载地址" || true
           git push
