@@ -21,10 +21,12 @@
 
 ## 📂 文件结构
 ├── main.py # 核心监控脚本
-├── download_links.json # 版本下载地址存储文件
-├── .github/workflows/sync.yml # 定时任务配置
-└── README.md # 项目说明文档
 
+├── download_links.json # 版本下载地址存储文件
+
+├── .github/workflows/sync.yml # 定时任务配置
+
+└── README.md # 项目说明文档
 
 ## 🚀 部署教程
 1. **新建 GitHub 仓库**
