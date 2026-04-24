@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "platform": "Windows x64",
+    "version": "9.9.29",
+    "download_url": "https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.29_260401_x64_01.exe",
+    "update_time": "2026-04-24 11:38:10"
+  },
+  {
+    "platform": "Windows x86",
+    "version": "9.9.29",
+    "download_url": "https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.29_260401_x86_01.exe",
+    "update_time": "2026-04-24 11:38:10"
+  },
+  {
+    "platform": "Windows ARM64",
+    "version": "9.9.29",
+    "download_url": "https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.29_260401_arm64_01.exe",
+    "update_time": "2026-04-24 11:38:10"
+  },
+  {
+    "platform": "macOS (通用)",
+    "version": "6.9.93",
+    "download_url": "https://dldir1v6.qq.com/qqfile/qq/QQNT/Mac/QQ_6.9.93_260401_01.dmg",
+    "update_time": "2026-04-24 11:38:10"
+  }
+]
