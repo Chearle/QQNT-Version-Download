@@ -1,7 +1,7 @@
 name: QQ版本自动监控
 on:
   schedule:
-    - cron: "*/15 * * * *"  # 7×24小时 每15分钟运行一次
+    - cron: "*/15 * * * *"  # 每15分钟自动运行 7×24小时
   workflow_dispatch:        # 手动运行
   push:
     branches: [ main ]
@@ -16,23 +16,21 @@ jobs:
       - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # 必须加这个
+          fetch-depth: 0
 
-      # 👇 【关键】每次运行前先强制同步远程代码，彻底解决冲突
-      - name: 拉取最新代码
+      - name: 拉取最新代码（解决冲突）
         run: git pull --force origin main
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v6
         with:
-          version: "3.11"
+          python-version: "3.11"  # 已修复！
 
-      - name: 运行脚本获取最新版本
+      - name: 运行脚本获取QQ最新版本
         run: |
           pip install requests
           python main.py
 
-      # 👇 【关键】提交并强制推送，永远成功
       - name: 提交并推送更新
         run: |
           git config --global user.name "GitHub Actions"
