@@ -1,8 +1,9 @@
 name: QQ版本自动监控
 on:
   schedule:
-    - cron: "*/15 * * * *"  # 每15分钟自动运行 7×24小时
-  workflow_dispatch:        # 手动运行
+    # 北京时间每15分钟自动运行，永不休眠
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
   push:
     branches: [ main ]
 
@@ -15,28 +16,24 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: 拉取最新代码（解决冲突）
-        run: git pull --force origin main
-
-      - name: 设置 Python 环境
+      - name: 设置Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"  # 已修复！
+          python-version: "3.11"
 
-      - name: 运行脚本获取QQ最新版本
+      - name: 运行版本抓取脚本
         run: |
           pip install requests
           python main.py
 
-      - name: 提交并推送更新
+      - name: 安全提交推送
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add versions/*.json
-          git commit -m "✅ 自动更新QQ版本信息" || true
-          git push --force-with-lease origin main
+          git commit -m "✅ 定时自动更新QQ版本" || exit 0
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
