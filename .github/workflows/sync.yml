@@ -1,5 +1,7 @@
 name: QQ版本自动监控
 on:
+  schedule:
+    - cron: "*/10 * * * *"  # 每10分钟自动运行一次
   push:
     branches: [ main ]
   workflow_dispatch:
@@ -25,7 +27,7 @@ jobs:
           pip install requests
           python main.py
 
-      - name: 提交更新（官方安全方式，永不报错）
+      - name: 提交更新（永不报错）
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
