@@ -19,56 +19,48 @@ def main():
         resp.raise_for_status()
         data = resp.json()
 
-        # ==============================================
-        # 【适配真实接口结构】提取所有平台版本
-        # ==============================================
         result = []
         
-        # Windows NT 版本 (最新版QQ)
+        # ==================== Windows x64（仅保留） ====================
         win = data.get("Windows", {})
         if win:
-            # Win64
             result.append({
                 "platform": "Windows x64",
                 "version": win["version"],
                 "download_url": win["ntDownloadX64Url"],
                 "update_time": get_current_time()
             })
-            # Win32 (x86)
-            result.append({
-                "platform": "Windows x86",
-                "version": win["version"],
-                "download_url": win["ntDownloadUrl"],
-                "update_time": get_current_time()
-            })
-            # Windows ARM64
-            result.append({
-                "platform": "Windows ARM64",
-                "version": win["version"],
-                "download_url": win["ntDownloadARMUrl"],
-                "update_time": get_current_time()
-            })
 
-        # macOS 版本
+        # ==================== macOS 通用版（仅保留） ====================
         mac = data.get("macOS", {})
         if mac:
             result.append({
-                "platform": "macOS (通用)",
+                "platform": "macOS 通用版",
                 "version": mac["version"].split(" ")[0],
                 "download_url": mac["downloadUrl"],
                 "update_time": get_current_time()
             })
 
-        # 打印结果
-        print(f"✅ 获取到 {len(result)} 个平台版本")
-        print("📄 即将写入数据：")
+        # ==================== Linux ARM64 deb（仅保留） ====================
+        linux = data.get("Linux", {})
+        if linux:
+            result.append({
+                "platform": "Linux ARM64 (deb)",
+                "version": linux["version"],
+                "download_url": linux["armDownloadUrl"]["deb"],
+                "update_time": get_current_time()
+            })
+
+        # 输出日志
+        print(f"✅ 获取到 {len(result)} 个核心平台版本")
+        print("📄 写入内容预览：")
         print(json.dumps(result, ensure_ascii=False, indent=2))
 
         # 写入文件
         with open(SAVE_FILE, "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
 
-        print("✅ 文件写入成功！")
+        print("✅ 核心平台下载地址写入成功！")
 
     except Exception as e:
         print(f"❌ 运行错误：{str(e)}")
