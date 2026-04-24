@@ -1,0 +1,36 @@
+name: QQ版本自动监控
+on:
+  # 定时任务：每1小时执行一次（7x24），cron表达式为UTC时间
+  schedule:
+    - cron: "0 */1 * * *"
+  # 支持手动触发运行
+  workflow_dispatch:
+
+# 赋予仓库写入权限（自动提交更新）
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 设置Python环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安装依赖
+        run: pip install requests
+
+      - name: 运行监控脚本
+        run: python main.py
+
+      - name: 提交并推送更新
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "✅ 自动更新QQ最新版本下载地址"
+          committer_name: GitHub Actions
+          committer_email: actions@github.com
