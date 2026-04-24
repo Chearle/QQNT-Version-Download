@@ -21,10 +21,15 @@
 
 ## 📂 文件结构
 ├── main.py # 核心监控脚本
+
 ├── .github/workflows/sync.yml # 定时任务配置
+
 ├── .versions/linux.json #Linux 历史版本
+
 ├── .versions/macos.json #mac 历史版本
+
 ├── .versions/windows.json #win 历史版本
+
 └── README.md # 项目说明文档
 
 ## 🚀 部署教程
