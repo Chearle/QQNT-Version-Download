@@ -4,9 +4,6 @@ on:
     - cron: "0 */1 * * *"
   workflow_dispatch:
 
-# 强制 Node.js 24 + 仓库写入权限
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 permissions:
   contents: write
 
@@ -14,12 +11,12 @@ jobs:
   monitor:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: 检出仓库代码
         uses: actions/checkout@v5
         with:
-          fetch-depth: 1
+          persist-credentials: true
 
-      - name: 设置Python
+      - name: 设置Python环境
         uses: actions/setup-python@v6
         with:
           python-version: "3.11"
@@ -27,14 +24,18 @@ jobs:
       - name: 安装依赖
         run: pip install requests
 
-      - name: 运行监控脚本
+      - name: 运行监控脚本（获取版本+写入文件）
         run: python main.py
 
-      # 原生Git提交（无Node.js依赖，零警告零报错）
-      - name: 自动提交更新
+      # 调试：查看文件是否被修改
+      - name: 查看文件内容
+        run: cat download_links.json
+
+      # 原生Git提交（100%稳定）
+      - name: 提交并推送更新
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           git add download_links.json
-          git commit -m "✅ 自动更新QQ最新版本下载地址" || exit 0
+          git commit -m "✅ 自动同步QQ最新版本下载地址"
           git push
