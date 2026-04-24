@@ -1,16 +1,26 @@
 import requests
 import json
+import os
 from datetime import datetime, timedelta
 
-# 官方配置地址
+# 配置
 CONFIG_URL = "https://cdn-go.cn/qq-web/im.qq.com_new/latest/rainbow/pcConfig.json"
-SAVE_FILE = "download_links.json"
+# 版本文件存放文件夹
+VERSION_DIR = "versions"
 
 def get_current_time():
-    # 获取北京时间
     utc_now = datetime.utcnow()
     cst_now = utc_now + timedelta(hours=8)
     return cst_now.strftime("%Y-%m-%d %H:%M:%S")
+
+def save_to_file(filename, data):
+    # 自动创建文件夹
+    if not os.path.exists(VERSION_DIR):
+        os.makedirs(VERSION_DIR)
+    # 拼接完整路径
+    file_path = os.path.join(VERSION_DIR, filename)
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
 
 def main():
     try:
@@ -18,49 +28,45 @@ def main():
         resp = requests.get(CONFIG_URL, timeout=10)
         resp.raise_for_status()
         data = resp.json()
+        update_time = get_current_time()
 
-        result = []
-        
-        # ==================== Windows x64（仅保留） ====================
+        # Windows x64
         win = data.get("Windows", {})
         if win:
-            result.append({
+            win_data = {
                 "platform": "Windows x64",
                 "version": win["version"],
                 "download_url": win["ntDownloadX64Url"],
-                "update_time": get_current_time()
-            })
+                "update_time": update_time
+            }
+            save_to_file("windows.json", win_data)
+            print("✅ versions/windows.json 写入成功")
 
-        # ==================== macOS 通用版（仅保留） ====================
+        # macOS 通用版
         mac = data.get("macOS", {})
         if mac:
-            result.append({
+            mac_data = {
                 "platform": "macOS 通用版",
                 "version": mac["version"].split(" ")[0],
                 "download_url": mac["downloadUrl"],
-                "update_time": get_current_time()
-            })
+                "update_time": update_time
+            }
+            save_to_file("macos.json", mac_data)
+            print("✅ versions/macos.json 写入成功")
 
-        # ==================== Linux ARM64 deb（仅保留） ====================
+        # Linux ARM64 (deb)
         linux = data.get("Linux", {})
         if linux:
-            result.append({
+            linux_data = {
                 "platform": "Linux ARM64 (deb)",
                 "version": linux["version"],
                 "download_url": linux["armDownloadUrl"]["deb"],
-                "update_time": get_current_time()
-            })
+                "update_time": update_time
+            }
+            save_to_file("linux.json", linux_data)
+            print("✅ versions/linux.json 写入成功")
 
-        # 输出日志
-        print(f"✅ 获取到 {len(result)} 个核心平台版本")
-        print("📄 写入内容预览：")
-        print(json.dumps(result, ensure_ascii=False, indent=2))
-
-        # 写入文件
-        with open(SAVE_FILE, "w", encoding="utf-8") as f:
-            json.dump(result, f, ensure_ascii=False, indent=2)
-
-        print("✅ 核心平台下载地址写入成功！")
+        print("\n🎉 全部分文件写入完成！")
 
     except Exception as e:
         print(f"❌ 运行错误：{str(e)}")
