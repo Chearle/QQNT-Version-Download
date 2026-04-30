@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 # 配置
 CONFIG_URL = "https://cdn-go.cn/qq-web/im.qq.com_new/latest/rainbow/pcConfig.json"
-# 版本文件存放文件夹
 VERSION_DIR = "versions"
 
 def get_current_time():
@@ -14,10 +13,8 @@ def get_current_time():
     return cst_now.strftime("%Y-%m-%d %H:%M:%S")
 
 def save_to_file(filename, data):
-    # 自动创建文件夹
     if not os.path.exists(VERSION_DIR):
         os.makedirs(VERSION_DIR)
-    # 拼接完整路径
     file_path = os.path.join(VERSION_DIR, filename)
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -25,9 +22,26 @@ def save_to_file(filename, data):
 def main():
     try:
         print("📥 正在请求QQ官方接口...")
-        resp = requests.get(CONFIG_URL, timeout=10)
+
+        # ==============================================
+        # ✅ 终极修复：强制禁用所有缓存 + 模拟浏览器
+        # ==============================================
+        resp = requests.get(
+            CONFIG_URL,
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+                "Pragma": "no-cache"
+            },
+            timeout=10
+        )
+
         resp.raise_for_status()
         data = resp.json()
+
+        # 🧪 调试打印：看一眼脚本到底拿到了什么！
+        print("【脚本真实获取到的 Windows 版本】:", data["Windows"]["version"])
+
         update_time = get_current_time()
 
         # Windows x64
@@ -42,7 +56,7 @@ def main():
             save_to_file("windows.json", win_data)
             print("✅ versions/windows.json 写入成功")
 
-        # macOS 通用版
+        # macOS
         mac = data.get("macOS", {})
         if mac:
             mac_data = {
@@ -54,7 +68,7 @@ def main():
             save_to_file("macos.json", mac_data)
             print("✅ versions/macos.json 写入成功")
 
-        # Linux ARM64 (deb)
+        # Linux
         linux = data.get("Linux", {})
         if linux:
             linux_data = {
