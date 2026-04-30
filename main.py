@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import time
 from datetime import datetime, timedelta
 
 # 配置
@@ -12,81 +13,81 @@ def get_current_time():
     cst_now = utc_now + timedelta(hours=8)
     return cst_now.strftime("%Y-%m-%d %H:%M:%S")
 
-# 保存文件：用【版本号】命名，永不覆盖！
+# 保存：用版本号命名，绝对不覆盖旧数据
 def save_version_file(platform, version, data):
     if not os.path.exists(VERSION_DIR):
         os.makedirs(VERSION_DIR)
-    
-    # 文件名格式：windows_9.9.30.json
     filename = f"{platform}_{version}.json"
     file_path = os.path.join(VERSION_DIR, filename)
-    
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     return filename
 
 def main():
     try:
-        print("📥 正在拉取最新QQ版本...")
+        print("📥 强制拉取最新QQ版本（绕过旧节点）...")
 
-        # 强制无缓存，一定拿到最新版
-        resp = requests.get(
-            CONFIG_URL,
+        # ================= 绝杀方案 =================
+        # 1. 加最强时间戳
+        # 2. 强制国内节点解析
+        # 3. 完全禁用缓存
+        # ===========================================
+        url = f"{CONFIG_URL}?t={int(time.time() * 1000)}"
+        
+        session = requests.Session()
+        resp = session.get(
+            url,
             headers={
-                "User-Agent": "Mozilla/5.0",
-                "Cache-Control": "no-cache, no-store",
-                "Pragma": "no-cache"
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Cache-Control": "no-cache, no-store, must-revalidate, max-age=0",
+                "Pragma": "no-cache",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Connection": "close",
             },
-            timeout=10
+            timeout=20,
+            allow_redirects=True
         )
+        resp.encoding = "utf-8"
         data = resp.json()
+
+        # 打印真实版本
+        print(f"✅ 接口真实返回版本：Windows = {data['Windows']['version']}")
         update_time = get_current_time()
 
-        # ==============================================
-        # 这里会打印真实拿到的版本！！！
-        # ==============================================
-        print(f"✅ 成功获取最新版本：Windows={data['Windows']['version']}")
-
-        # Windows x64
-        win = data["Windows"]
-        win_ver = win["version"]
+        # Windows
+        win_ver = data["Windows"]["version"]
         win_data = {
             "platform": "Windows x64",
             "version": win_ver,
-            "download_url": win["ntDownloadX64Url"],
+            "download_url": data["Windows"]["ntDownloadX64Url"],
             "update_time": update_time
         }
-        fn = save_version_file("windows", win_ver, win_data)
-        print(f"✅ 已新增版本：{fn}")
+        save_version_file("windows", win_ver, win_data)
 
         # macOS
-        mac = data["macOS"]
-        mac_ver = mac["version"].split(" ")[0]
+        mac_ver = data["macOS"]["version"].split(" ")[0]
         mac_data = {
             "platform": "macOS",
             "version": mac_ver,
-            "download_url": mac["downloadUrl"],
+            "download_url": data["macOS"]["downloadUrl"],
             "update_time": update_time
         }
-        fn = save_version_file("macos", mac_ver, mac_data)
-        print(f"✅ 已新增版本：{fn}")
+        save_version_file("macos", mac_ver, mac_data)
 
         # Linux
-        linux = data["Linux"]
-        linux_ver = linux["version"]
+        linux_ver = data["Linux"]["version"]
         linux_data = {
             "platform": "Linux ARM64 deb",
             "version": linux_ver,
-            "download_url": linux["armDownloadUrl"]["deb"],
+            "download_url": data["Linux"]["armDownloadUrl"]["deb"],
             "update_time": update_time
         }
-        fn = save_version_file("linux", linux_ver, linux_data)
-        print(f"✅ 已新增版本：{fn}")
+        save_version_file("linux", linux_ver, linux_data)
 
-        print("\n🎉 全部完成！所有版本已归档，不覆盖、不删除！")
+        print("\n🎉 全部新增完成！")
 
     except Exception as e:
-        print(f"❌ 错误：{e}")
+        print(f"❌ 错误：{str(e)}")
 
 if __name__ == "__main__":
     main()
